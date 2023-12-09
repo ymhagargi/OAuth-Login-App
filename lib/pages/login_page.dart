@@ -4,10 +4,11 @@ import 'package:modernlogintute/components/my_button.dart';
 import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/components/square_tile.dart';
 import 'package:modernlogintute/services/auth_service.dart';
+import 'package:modernlogintute/pages/forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({super.key, required this.onTap});
+  const LoginPage({Key? key, required this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,12 +17,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   // text editing controllers
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
   // sign user in method
   void signUserIn() async {
-    //loading circle
+    // loading circle
     showDialog(
       context: context,
       builder: (context) {
@@ -83,16 +83,16 @@ class _LoginPageState extends State<LoginPage> {
 
                 // logo
                 const Icon(
-                  Icons.hail,
+                  Icons.directions_subway,
                   size: 100,
-                  color: Colors.red,
+                  color: Colors.pink,
                 ),
 
                 const SizedBox(height: 50),
 
                 // hello message
                 Text(
-                  'Hola!',
+                  'Welcome to MetroFinder!',
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontSize: 16,
@@ -118,18 +118,29 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 10),
-
-                // forgot password?
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[600]),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ForgotPasswordPage();
+                        },
                       ),
-                    ],
+                    );
+                  },
+                  // forgot password?
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -174,20 +185,19 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
 
                 // google + apple sign in buttons
-                 Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // google button
                     SquareTile(
                       onTap: () => AuthService().signInWithGoogle(),
                       imagePath: 'lib/images/google.png'),
-
                     SizedBox(width: 25),
 
                     // facebook button
                     SquareTile(
-                      onTap: () => FacebookAuthService().signInFacebook(),
-                      imagePath: 'lib/images/Facebook_Logo_Primary.png')
+                      onTap: () => AuthService().signInFacebook(),
+                      imagePath: 'lib/images/Facebook_Logo_Primary.png'),
                   ],
                 ),
 

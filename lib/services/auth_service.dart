@@ -15,13 +15,11 @@ class AuthService {
     await GoogleSignIn().signOut();
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
-}
 
-class FacebookAuthService {
   final FacebookAuth facebookAuth = FacebookAuth.instance;
 
   signInFacebook() async {
-    final LoginResult result = await facebookAuth.login();
+    final LoginResult result = await facebookAuth.login(permissions:['email','public_profile']);
 
     if (result.status == LoginStatus.success) {
       try {

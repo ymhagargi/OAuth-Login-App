@@ -4,6 +4,7 @@ import 'package:modernlogintute/components/my_button.dart';
 import 'package:modernlogintute/components/my_textfield.dart';
 import 'package:modernlogintute/components/square_tile.dart';
 import 'package:modernlogintute/services/auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -15,12 +16,33 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   // text editing controllers
+  final _firstnmController = TextEditingController();
+  final _lastnmController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
+  @override
+  void dispose() {
+    _firstnmController.dispose();
+    _lastnmController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future addUserDetails(String uid, String first_name, String last_name, String em_id) async {
+    await FirebaseFirestore.instance.collection('users').add({
+      'uid': uid,
+      'first name': first_name,
+      'last name': last_name,
+      'email': em_id,
+    });
+  }
+
   // sign user up method
-  void signUserUp() async {
+  Future signUserUp() async {
     //loading circle
     showDialog(
       context: context,
@@ -32,14 +54,22 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     try {
-      if (passwordController.text == confirmPasswordController.text) {
+      if (passwordController.text.trim() == confirmPasswordController.text.trim()) {
         // if password matches or not
         //creating user
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
         );
-      } else {
+
+        addUserDetails(
+          FirebaseAuth.instance.currentUser!.uid,
+          _firstnmController.text.trim(),
+          _lastnmController.text.trim(),
+          emailController.text.trim()
+        );
+      } 
+      else {
         // if password doesn't match
         showErrorMessage("Passwords don't match! Try Again!");
       }
@@ -75,10 +105,11 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
   }
+
   void showErrorMessage(String message) {
     showDialog(
-      context: context, 
-      builder: (context){
+      context: context,
+      builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.red,
           title: Center(
@@ -106,9 +137,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 // logo
                 const Icon(
-                  Icons.hail,
+                  Icons.directions_subway,
                   size: 100,
-                  color: Colors.red,
+                  color: Color.fromRGBO(244, 67, 54, 1),
                 ),
 
                 const SizedBox(height: 25),
@@ -122,7 +153,24 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 8),
+
+                // first name textfield
+                MyTextField(
+                  controller: _firstnmController,
+                  hintText: 'First Name',
+                  obscureText: false,
+                ),
+                const SizedBox(height: 8),
+
+                // last name textfield
+                MyTextField(
+                  controller: _lastnmController,
+                  hintText: 'Last Name',
+                  obscureText: false,
+                ),
+
+                const SizedBox(height: 8),
 
                 // username textfield
                 MyTextField(
@@ -131,7 +179,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: false,
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // password textfield
                 MyTextField(
@@ -140,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: true,
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // confirm password textfield
                 MyTextField(
@@ -149,8 +197,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: true,
                 ),
 
-                
-                const SizedBox(height: 25),
+                const SizedBox(height: 20),
 
                 // sign up button
                 MyButton(
@@ -158,7 +205,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   onTap: signUserUp,
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 40),
 
                 // or continue with
                 Padding(
@@ -188,7 +235,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 40),
 
                 // google + facebook sign in buttons
                 Row(
@@ -196,19 +243,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     // google button
                     SquareTile(
-                      onTap: () => AuthService().signInWithGoogle(),
-                      imagePath: 'lib/images/google.png'),
+                        onTap: () => AuthService().signInWithGoogle(),
+                        imagePath: 'lib/images/google.png'),
 
                     SizedBox(width: 25),
 
                     // facebook button
                     SquareTile(
-                      onTap: () => FacebookAuthService().signInFacebook(),
-                      imagePath: 'lib/images/Facebook_Logo_Primary.png')
+                        onTap: () => AuthService().signInFacebook(),
+                        imagePath: 'lib/images/Facebook_Logo_Primary.png')
                   ],
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 40),
 
                 // not a member? register now
                 Row(
@@ -239,5 +286,3 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
-
-
